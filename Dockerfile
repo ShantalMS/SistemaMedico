@@ -26,13 +26,16 @@ WORKDIR /var/www
 # Copy application files
 COPY . /var/www
 
-# Install dependencies
-RUN composer install --optimize-autoloader --no-dev
+# Install dependencies as root
+RUN composer install --optimize-autoloader --no-dev --no-interaction
 
-# Set permissions
+# Generate optimized autoload files
+RUN composer dump-autoload --optimize
+
+# Set permissions DESPUÉS de copiar archivos
 RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www/storage \
-    && chmod -R 755 /var/www/bootstrap/cache
+    && chmod -R 775 /var/www/storage \
+    && chmod -R 775 /var/www/bootstrap/cache
 
 # Copy nginx config
 COPY docker/nginx/railway.conf /etc/nginx/sites-available/default
